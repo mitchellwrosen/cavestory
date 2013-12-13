@@ -1,5 +1,7 @@
 #include "game.h"
 
+#include <boost/bind.hpp>
+
 #include "animated_sprite.h"
 #include "input.h"
 #include "graphics.h"

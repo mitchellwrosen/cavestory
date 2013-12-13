@@ -22,14 +22,12 @@ class Game {
   void eventLoop();
 
   void updateInput();
-  void eventHandler(const sdl::Event& event);
 
   void update(int elapsed_time_ms);
   void draw(Graphics& graphics);
 
   Input input_;
   scoped_ptr<Player> player_;
-
 };
 
 #endif  // GAME_H_

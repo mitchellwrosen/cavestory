@@ -11,7 +11,6 @@ const Uint8 keyup   = SDL_KEYUP;
 }  // namespace event
 
 typedef SDL_Event Event;
-typedef void (*EventHandler)(const Event&);
 
 int pollEvent(Event* event);
 
