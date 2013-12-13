@@ -2,28 +2,35 @@
 #define SPRITE_H_
 
 #include <SDL/SDL.h>
-
 #include <string>
 
 using std::string;
 
 class Graphics;
 
+namespace sdl {
+class Surface;
+}  // namespace sdl
+
 class Sprite {
  public:
-  Sprite(const std::string& file_path,
+  Sprite(Graphics& graphics,
+         const string& file_path,
          int src_x,
          int src_y,
          int width,
          int height);
 
-  ~Sprite();
+  virtual ~Sprite();
 
+  virtual void update(int) {};
   void draw(Graphics& graphics, int x, int y);
 
- private:
-  SDL_Surface* sprite_sheet_;
+ protected:
   SDL_Rect src_rect_;
+
+ private:
+  sdl::Surface& sprite_sheet_;
 };
 
 #endif  // SPRITE_H_

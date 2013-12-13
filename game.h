@@ -3,20 +3,33 @@
 
 #include <boost/scoped_ptr.hpp>
 
+#include "input.h"
+#include "sdl/sdl.h"
+
+using boost::scoped_ptr;
+
 class Graphics;
-class Sprite;
+class Player;
 
 class Game {
  public:
   Game();
   ~Game();
 
+  static const int kTileSize;
+
  private:
   void eventLoop();
-  void update();
+
+  void updateInput();
+  void eventHandler(const sdl::Event& event);
+
+  void update(int elapsed_time_ms);
   void draw(Graphics& graphics);
 
-  boost::scoped_ptr<Sprite> sprite_;
+  Input input_;
+  scoped_ptr<Player> player_;
+
 };
 
 #endif  // GAME_H_

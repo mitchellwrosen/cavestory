@@ -1,20 +1,29 @@
 #ifndef GRAPHICS_H_
 #define GRAPHICS_H_
 
-class SDL_Surface;
-class SDL_Rect;
+#include <map>
+#include <string>
+
+#include "sdl/sdl.h"
+
+using std::map;
+using std::string;
 
 class Graphics {
  public:
   Graphics();
-  ~Graphics();
 
-  void blitSurface(SDL_Surface* src, SDL_Rect* src_rect, int x, int y);
+  sdl::Surface& loadImage(const string& file_path);
+
+  int blitSurface(sdl::Surface& src, sdl::Rect* src_rect, int x, int y);
 
   void flip();
+  void clear();
 
  private:
-  SDL_Surface* screen_;
+  map<string, sdl::Surface> sprite_sheets_;
+
+  sdl::Surface screen_;
 };
 
 #endif  // GRAPHICS_H_

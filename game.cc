@@ -1,60 +1,89 @@
 #include "game.h"
 
-#include <SDL/SDL.h>
-
+#include "animated_sprite.h"
+#include "input.h"
 #include "graphics.h"
+#include "player.h"
+#include "sdl/sdl.h"
 #include "sprite.h"
 
-namespace{
+namespace {
 const int kFps = 60;
 }
 
+// static
+const int Game::kTileSize = 32;
+
 Game::Game() {
-  SDL_Init(SDL_INIT_EVERYTHING);
-  SDL_ShowCursor(SDL_DISABLE);
+  sdl::init(SDL_INIT_EVERYTHING);
 
   eventLoop();
 }
 
 Game::~Game() {
-  SDL_Quit();
+  sdl::quit();
 }
 
 void Game::eventLoop() {
   Graphics graphics;
 
-  SDL_Event event;
-
-  sprite_.reset(new Sprite("char.bmp", 0, 0, 32, 32));
+  player_.reset(new Player(graphics, 325, 240));
 
   bool running = true;
+  int last_update_time = sdl::getTicks();
   while (running) {
-    const int start_time_ms = SDL_GetTicks();
+    const int start_time_ms = sdl::getTicks();
 
-    while (SDL_PollEvent(&event)) {
-      switch(event.type) {
-        case SDL_KEYDOWN:
-          if (event.key.keysym.sym == SDLK_ESCAPE) {
-            running = false;
-          }
-          break;
-        default:
-          break;
-      }
+    updateInput();
+
+    if (input_.pressed(SDLK_ESCAPE)) {
+      running = false;
     }
 
-    update();
+    if ((input_.held(sdl::key::left) && input_.held(sdl::key::right)) ||
+        (!input_.held(sdl::key::left) && !input_.held(sdl::key::right))) {
+      player_->stopMoving();
+    } else if (input_.held(sdl::key::left)) {
+      player_->startMovingLeft();
+    } else {
+      player_->startMovingRight();
+    }
+
+    const int current_time_ms = sdl::getTicks();
+    update(current_time_ms - last_update_time);
+    last_update_time = current_time_ms;
+
     draw(graphics);
 
-    const int elapsed_time_ms = SDL_GetTicks() - start_time_ms;
-    SDL_Delay(1000/kFps - elapsed_time_ms);
+    const int elapsed_time_ms = sdl::getTicks() - start_time_ms;
+    sdl::delay(1000/kFps - elapsed_time_ms);
   }
 }
 
-void Game::update() {
+void Game::updateInput() {
+  input_.beginNewFrame();
+
+  sdl::Event event;
+  while (sdl::pollEvent(&event)) {
+    switch (event.type) {
+      case sdl::event::keydown:
+        input_.keyDown(event.key.keysym.sym);
+        break;
+      case sdl::event::keyup:
+        input_.keyUp(event.key.keysym.sym);
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+void Game::update(int elapsed_time_ms) {
+  player_->update(elapsed_time_ms);
 }
 
 void Game::draw(Graphics& graphics) {
-  sprite_->draw(graphics, 320, 240);
+  graphics.clear();
+  player_->draw(graphics);
   graphics.flip();
 }
