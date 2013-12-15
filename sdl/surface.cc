@@ -18,8 +18,8 @@ Surface::~Surface() {
 }
 
 // static
-Surface Surface::fromBmp(const string& filename) {
-  return Surface(SDL_LoadBMP(filename.c_str()));
+Surface* Surface::fromBmp(const string& filename) {
+  return new Surface(SDL_LoadBMP(filename.c_str()));
 }
 
 int Surface::flip() {

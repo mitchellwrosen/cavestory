@@ -16,7 +16,7 @@ class Surface {
 
   ~Surface();
 
-  static Surface fromBmp(const string& filename);
+  static Surface* fromBmp(const string& filename);
 
   int flip();
   int fillRect(Rect* dst_rect, Uint32 color);
@@ -24,6 +24,10 @@ class Surface {
   SDL_Surface* get() const { return surface_; }
 
  private:
+  // Disallow copy & assign
+  Surface(const Surface& other);
+  Surface& operator=(const Surface& other);
+
   SDL_Surface* surface_;
 };
 

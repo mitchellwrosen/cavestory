@@ -15,9 +15,6 @@ Sprite::Sprite(Graphics& graphics,
   src_rect_.h = height;
 }
 
-Sprite::~Sprite() {
-}
-
 void Sprite::draw(Graphics& graphics, int x, int y) {
   graphics.blitSurface(sprite_sheet_, &src_rect_, x, y);
 }

@@ -30,15 +30,15 @@ void disableCursor() {
   SDL_ShowCursor(SDL_DISABLE);
 }
 
-Surface setVideoMode(int width, int height, int bpp, Uint32 flags) {
-  return Surface(SDL_SetVideoMode(width, height, bpp, flags));
+Surface* setVideoMode(int width, int height, int bpp, Uint32 flags) {
+  return new Surface(SDL_SetVideoMode(width, height, bpp, flags));
 }
 
-int blitSurface(Surface& src, SDL_Rect* src_rect, Surface& dst, int x, int y) {
+int blitSurface(Surface* src, SDL_Rect* src_rect, Surface* dst, int x, int y) {
   SDL_Rect dst_rect;
   dst_rect.x = x;
   dst_rect.y = y;
-  return SDL_BlitSurface(src.get(), src_rect, dst.get(), &dst_rect);
+  return SDL_BlitSurface(src->get(), src_rect, dst->get(), &dst_rect);
 }
 
 }  // namespace sdl

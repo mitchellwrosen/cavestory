@@ -24,9 +24,9 @@ void delay(uint32_t ms);
 void enableCursor();
 void disableCursor();
 
-Surface setVideoMode(int width, int height, int bpp, Uint32 flags);
+Surface* setVideoMode(int width, int height, int bpp, Uint32 flags);
 
-int blitSurface(Surface& src, SDL_Rect* src_rect, Surface& dst, int x, int y);
+int blitSurface(Surface* src, SDL_Rect* src_rect, Surface* dst, int x, int y);
 
 }  // namespace sdl
 

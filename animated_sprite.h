@@ -14,8 +14,6 @@ class AnimatedSprite : public Sprite {
                  int fps,
                  int num_frames);
 
-  ~AnimatedSprite();
-
   void update(int elapsed_time_ms);
 
  private:

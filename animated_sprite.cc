@@ -19,10 +19,6 @@ AnimatedSprite::AnimatedSprite(
   elapsed_time_(0) {
 }
 
-
-AnimatedSprite::~AnimatedSprite() {
-}
-
 void AnimatedSprite::update(int elapsed_time_ms) {
   elapsed_time_ += elapsed_time_ms;
   if (elapsed_time_ > frame_time_) {

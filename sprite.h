@@ -21,8 +21,6 @@ class Sprite {
          int width,
          int height);
 
-  virtual ~Sprite();
-
   virtual void update(int) {};
   void draw(Graphics& graphics, int x, int y);
 
@@ -30,7 +28,7 @@ class Sprite {
   SDL_Rect src_rect_;
 
  private:
-  sdl::Surface& sprite_sheet_;
+  sdl::Surface* sprite_sheet_;
 };
 
 #endif  // SPRITE_H_
