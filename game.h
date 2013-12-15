@@ -21,7 +21,7 @@ class Game {
  private:
   void eventLoop();
 
-  void updateInput();
+  bool handleInput();
 
   void update(int elapsed_time_ms);
   void draw(Graphics& graphics);

@@ -36,20 +36,7 @@ void Game::eventLoop() {
   while (running) {
     const int start_time_ms = sdl::getTicks();
 
-    updateInput();
-
-    if (input_.pressed(SDLK_ESCAPE)) {
-      running = false;
-    }
-
-    if ((input_.held(sdl::key::left) && input_.held(sdl::key::right)) ||
-        (!input_.held(sdl::key::left) && !input_.held(sdl::key::right))) {
-      player_->stopMoving();
-    } else if (input_.held(sdl::key::left)) {
-      player_->startMovingLeft();
-    } else {
-      player_->startMovingRight();
-    }
+    running = handleInput();
 
     const int current_time_ms = sdl::getTicks();
     update(current_time_ms - last_update_time);
@@ -62,7 +49,7 @@ void Game::eventLoop() {
   }
 }
 
-void Game::updateInput() {
+bool Game::handleInput() {
   input_.beginNewFrame();
 
   sdl::Event event;
@@ -78,6 +65,13 @@ void Game::updateInput() {
         break;
     }
   }
+
+  if (input_.pressed(SDLK_ESCAPE))
+    return false;
+
+  player_->handleInput(input_);
+
+  return true;
 }
 
 void Game::update(int elapsed_time_ms) {

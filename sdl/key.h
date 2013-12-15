@@ -8,6 +8,7 @@ namespace key {
 
 extern SDLKey left;
 extern SDLKey right;
+extern SDLKey z;
 
 }  // namespace key
 }  // namespace sdl

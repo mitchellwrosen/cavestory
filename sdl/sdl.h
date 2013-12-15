@@ -19,7 +19,7 @@ int init(Uint32 flags);
 void quit();
 
 uint32_t getTicks();
-void delay(uint32_t ms); 
+void delay(uint32_t ms);
 
 void enableCursor();
 void disableCursor();

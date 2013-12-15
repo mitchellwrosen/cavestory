@@ -13,9 +13,9 @@ class Input {
   void keyUp(const SDLKey& key);
   void keyDown(const SDLKey& key);
 
-  bool pressed(SDLKey key);
-  bool released(SDLKey key);
-  bool held(SDLKey key);
+  bool held(SDLKey key)     const { return held_keys_.count(key)     && held_keys_.at(key);     }
+  bool pressed(SDLKey key)  const { return pressed_keys_.count(key)  && pressed_keys_.at(key);  }
+  bool released(SDLKey key) const { return released_keys_.count(key) && released_keys_.at(key); }
 
  private:
   map<SDLKey, bool> held_keys_;

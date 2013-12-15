@@ -14,15 +14,3 @@ void Input::keyDown(const SDLKey& key) {
   pressed_keys_[key] = true;
   held_keys_[key] = true;
 }
-
-bool Input::pressed(SDLKey key) {
-  return pressed_keys_[key];
-}
-
-bool Input::released(SDLKey key) {
-  return released_keys_[key];
-}
-
-bool Input::held(SDLKey key) {
-  return held_keys_[key];
-}
