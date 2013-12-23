@@ -6,6 +6,7 @@
 #include "animated_sprite.h"
 #include "game.h"
 #include "graphics.h"
+#include "sprite_constants.h"
 
 using boost::shared_ptr;
 using std::max;
@@ -13,20 +14,12 @@ using std::min;
 
 namespace {
 const float kGravity        = 0.0012f;  // pixels/ms/ms
-const float kJumpVel        = 0.325f;   // pixels/ms
 const int   kJumpTime       = 275;      // ms
+const float kJumpVel        = 0.325f;   // pixels/ms
 const float kMaxVelX        = 0.325f;   // pixels/ms
 const float kMaxVelY        = 0.325f;   // pixels/ms
 const float kSlowdownFactor = 0.8f;     // unitless
 const float kWalkingAcc     = 0.0012f;  // pixels/ms/ms
-}
-
-bool operator<(const Player::SpriteState& a, const Player::SpriteState& b) {
-  if (a.motion_type != b.motion_type)
-    return a.motion_type < b.motion_type;
-  if (a.facing != b.facing)
-    return a.facing < b.facing;
-  return false;
 }
 
 Player::Player(Graphics& graphics, int x, int y)
@@ -36,23 +29,33 @@ Player::Player(Graphics& graphics, int x, int y)
     , vel_y_(0.0f)
     , acc_x_(0.0f)
     , acc_y_(0.0f)
-    , on_ground_(false)
     , jump_time_remaining_(0)
     , jump_active_(false)
-    , facing_(LEFT)
+    , on_ground_(false)
+    , motion_(STANDING)
+    , hfacing_(LEFT)
+    , vfacing_(HORIZONTAL)
     {
   initializeSprites(graphics);
 }
 
 void Player::handleInput(const Input& input) {
   if ((input.held(sdl::key::left) && input.held(sdl::key::right)) ||
-      (!input.held(sdl::key::left) && !input.held(sdl::key::right))) {
+      (!input.held(sdl::key::left) && !input.held(sdl::key::right)))
     stopMoving();
-  } else if (input.held(sdl::key::left)) {
+  else if (input.held(sdl::key::left))
     startMovingLeft();
-  } else {
+  else
     startMovingRight();
-  }
+
+  if ((input.held(sdl::key::up) && input.held(sdl::key::down)) ||
+      (!input.held(sdl::key::up) && !input.held(sdl::key::down)))
+    lookHorizontal();
+  else if (input.held(sdl::key::up))
+    lookUp();
+  else
+    lookDown();
+
 
   if (input.pressed(sdl::key::z))
     startJump();
@@ -62,17 +65,30 @@ void Player::handleInput(const Input& input) {
 
 void Player::startMovingLeft() {
   acc_x_ = -kWalkingAcc;
-  facing_ = LEFT;
+  hfacing_ = LEFT;
 }
 
 void Player::startMovingRight() {
   acc_x_ = kWalkingAcc;
-  facing_ = RIGHT;
+  hfacing_ = RIGHT;
 }
 
 void Player::stopMoving() {
   acc_x_ = 0.0f;
 }
+
+void Player::lookUp() {
+  vfacing_ = UP;
+}
+
+void Player::lookDown() {
+  vfacing_ = DOWN;
+}
+
+void Player::lookHorizontal() {
+  vfacing_ = HORIZONTAL;
+}
+
 
 void Player::startJump() {
   if (isOnGround()) {
@@ -88,52 +104,67 @@ void Player::stopJump() {
 }
 
 void Player::initializeSprites(Graphics& graphics) {
-  sprites_[SpriteState(STANDING, LEFT)] = shared_ptr<Sprite>(new Sprite(
-      graphics,
-      "char.bmp",
-      0,
-      0,
-      Game::kTileSize,
-      Game::kTileSize)
-  );
+  for (Motion motion = FIRST_MOTION; motion < LAST_MOTION; ++motion) {
+    for (HFacing hfacing = FIRST_HFACING; hfacing < LAST_HFACING; ++hfacing) {
+      for (VFacing vfacing = FIRST_VFACING; vfacing < LAST_VFACING; ++vfacing)
+        initializeSprite(graphics, SpriteState(motion, hfacing, vfacing));
+    }
+  }
+}
 
-  sprites_[SpriteState(WALKING, LEFT)] = shared_ptr<Sprite>(new AnimatedSprite(
-      graphics,
-      "char.bmp",
-      0,
-      0,
-      Game::kTileSize,
-      Game::kTileSize,
-      15,
-      3)
-  );
+void Player::initializeSprite(Graphics& graphics, const SpriteState& sprite_state) {
+  int x;
+  if (sprite_state.walking()) {
+    x = sprite::kWalkX;
+  } else {
+    if (sprite_state.facingDown()) {
+      x = sprite_state.standing() ?  sprite::kBackX : sprite::kDownX;
+    } else {
+      if (sprite_state.standing())
+        x = sprite::kStandX;
+      if (sprite_state.jumping())
+        x = sprite::kJumpX;
+      if (sprite_state.falling())
+        x = sprite::kFallX;
+    }
+  }
 
-  sprites_[SpriteState(STANDING, RIGHT)] = shared_ptr<Sprite>(new Sprite(
-      graphics,
-      "char.bmp",
-      0,
-      Game::kTileSize,
-      Game::kTileSize,
-      Game::kTileSize)
-  );
+  if (sprite_state.facingUp())
+    x += sprite::kUpOffsetX;
 
-  sprites_[SpriteState(WALKING, RIGHT)] = shared_ptr<Sprite>(new AnimatedSprite(
-      graphics,
-      "char.bmp",
-      0,
-      Game::kTileSize,
-      Game::kTileSize,
-      Game::kTileSize,
-      15,
-      3)
-  );
+  int y = sprite_state.facingLeft() ? sprite::kLeftY : sprite::kRightY;
+
+  Sprite* sprite;
+  if (sprite_state.motion == WALKING) {
+    sprite = new AnimatedSprite(
+        graphics,
+        sprite::kFilePath,
+        x,
+        y,
+        sprite::kTileSize,
+        sprite::kTileSize,
+        15,
+        3);
+  } else {
+    sprite = new Sprite(
+        graphics,
+        sprite::kFilePath,
+        x,
+        y,
+        sprite::kTileSize,
+        sprite::kTileSize);
+  }
+
+  sprites_[sprite_state] = shared_ptr<Sprite>(sprite);
 }
 
 Player::SpriteState Player::getSpriteState() {
-  return SpriteState(
-      acc_x_ == 0.0f ? STANDING : WALKING,
-      facing_
-  );
+  Motion motion;
+  if (isOnGround())
+    motion = acc_x_ == 0.0f ? STANDING : WALKING;
+  else
+    motion = vel_y_ < 0.0f ? JUMPING : FALLING;
+  return SpriteState(motion, hfacing_, vfacing_);
 }
 
 void Player::jumpReset() {
@@ -142,7 +173,7 @@ void Player::jumpReset() {
 }
 
 void Player::update(int elapsed_time) {
-  sprites_[getSpriteState()]->update(elapsed_time);
+  shared_ptr<Sprite> sprite = sprites_[getSpriteState()];
 
   if (jump_active_) {
     jump_time_remaining_ -= elapsed_time;

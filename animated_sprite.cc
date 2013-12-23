@@ -2,6 +2,7 @@
 
 #include "game.h"
 #include "sprite.h"
+#include "sprite_constants.h"
 
 AnimatedSprite::AnimatedSprite(
     Graphics& graphics,
@@ -26,9 +27,9 @@ void AnimatedSprite::update(int elapsed_time_ms) {
     elapsed_time_ = 0;
 
     if (current_frame_ < num_frames_) {
-      src_rect_.x += Game::kTileSize;
+      src_rect_.x += sprite::kTileSize;
     } else {
-      src_rect_.x -= (num_frames_ - 1) * Game::kTileSize;
+      src_rect_.x -= (num_frames_ - 1) * sprite::kTileSize;
       current_frame_ = 0;
     }
   }

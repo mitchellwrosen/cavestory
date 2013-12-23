@@ -24,34 +24,72 @@ class Player {
   void startMovingRight();
   void stopMoving();
 
+  void lookUp();
+  void lookDown();
+  void lookHorizontal();
+
   void startJump();
   void stopJump();
 
  private:
-  enum MotionType {
-    STANDING,
+  struct SpriteState;
+
+  enum Motion {
+    FIRST_MOTION,
+    STANDING = FIRST_MOTION,
     WALKING,
+    JUMPING,
+    FALLING,
+    LAST_MOTION
   };
 
-  enum Facing {
-    LEFT,
+  enum HFacing {
+    FIRST_HFACING,
+    LEFT = FIRST_HFACING,
     RIGHT,
+    LAST_HFACING
+  };
+
+  enum VFacing {
+    FIRST_VFACING,
+    UP = FIRST_VFACING,
+    DOWN,
+    HORIZONTAL,
+    LAST_VFACING
   };
 
   struct SpriteState {
-    SpriteState(MotionType motion_type = STANDING,
-                Facing facing = LEFT) :
-      motion_type(motion_type),
-      facing(facing) {
+    SpriteState(Motion motion, HFacing hfacing, VFacing vfacing)
+        : motion(motion), hfacing(hfacing), vfacing(vfacing) {
     }
 
-    MotionType motion_type;
-    Facing facing;
+    bool operator<(const SpriteState& other) const {
+      if (motion != other.motion)
+        return motion < other.motion;
+      if (hfacing != other.hfacing)
+        return hfacing < other.hfacing;
+      if (vfacing != other.vfacing)
+        return vfacing < other.vfacing;
+      return false;
+    }
+
+    bool standing()         const { return motion == STANDING;    }
+    bool walking()          const { return motion == WALKING;     }
+    bool jumping()          const { return motion == JUMPING;     }
+    bool falling()          const { return motion == FALLING;     }
+    bool facingLeft()       const { return hfacing == LEFT;       }
+    bool facingRight()      const { return hfacing == RIGHT;      }
+    bool facingUp()         const { return vfacing == UP;         }
+    bool facingDown()       const { return vfacing == DOWN;       }
+    bool facingHorizontal() const { return vfacing == HORIZONTAL; }
+
+    Motion motion;
+    HFacing hfacing;
+    VFacing vfacing;
   };
 
-  friend bool operator<(const SpriteState& a, const SpriteState& b);
-
   void initializeSprites(Graphics& graphics);
+  void initializeSprite(Graphics& graphics, const SpriteState& sprite_state);
   SpriteState getSpriteState();
 
   void jumpReset();
@@ -68,12 +106,13 @@ class Player {
   float acc_x_;
   float acc_y_;
 
-  bool on_ground_;
-
   int jump_time_remaining_;
   bool jump_active_;
+  bool on_ground_;
 
-  Facing facing_;
+  Motion motion_;
+  HFacing hfacing_;
+  VFacing vfacing_;
 
   map<SpriteState, shared_ptr<Sprite> > sprites_;
 };

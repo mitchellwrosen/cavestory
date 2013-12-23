@@ -13,9 +13,6 @@ namespace {
 const int kFps = 60;
 }
 
-// static
-const int Game::kTileSize = 32;
-
 Game::Game() {
   sdl::init(SDL_INIT_EVERYTHING);
 

@@ -10,7 +10,7 @@ const int kScreenHeight = 480;
 const int kBitsPerPixel = 32;
 }
 
-Graphics::Graphics() : screen_(sdl::setVideoMode(kScreenWidth, kScreenHeight, kBitsPerPixel, SDL_FULLSCREEN)) {
+Graphics::Graphics() : screen_(sdl::setVideoMode(kScreenWidth, kScreenHeight, kBitsPerPixel, 0)) {
   sdl::disableCursor();
 }
 
